@@ -27,21 +27,41 @@ def save_image(file: UploadFile) -> str:
     
     return f"{sha256_hash}.jpg"
 
-def get_db():
-    if not db.exists():
-        yield
 
+def get_db():
     conn = sqlite3.connect(db)
-    conn.row_factory = sqlite3.Row  # Return rows as dictionaries
-    try:
-        yield conn
-    finally:
-        conn.close()
+    conn.row_factory = sqlite3.Row  # 行を辞書形式で返す
+    return conn
 
 
 # STEP 5-1: set up the database connection
 def setup_database():
-    pass
+    """データベースとテーブルをセットアップする関数"""
+    # データベースファイルが存在しない場合に作成する処理
+    if not db.exists():
+        # データベースファイルがない場合は作成する
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE categories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL
+            );
+        ''')
+        cursor.execute('''
+            CREATE TABLE items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                category_id INTEGER NOT NULL,
+                image_name TEXT NOT NULL,
+                FOREIGN KEY (category_id) REFERENCES categories(id)
+            );
+        ''')
+        conn.commit()
+        conn.close()
+        print("Database and tables created.")
+    else:
+        print("Database already exists.")
 
 
 @asynccontextmanager
@@ -98,13 +118,23 @@ class Item(BaseModel):
     name: str
     category: str
     image_name: str
-
 def insert_item(name: str, category: str, image_name: str, db: sqlite3.Connection):
     cursor = db.cursor()
+    
+    # category_nameからcategory_idを取得
+    cursor.execute('SELECT id FROM categories WHERE name = ?', (category,))
+    category_id = cursor.fetchone()
+    
+    if not category_id:
+        raise HTTPException(status_code=400, detail=f"Category '{category}' does not exist.")
+    
+    category_id = category_id["id"]  # id を取り出す
+
+    # items テーブルに挿入
     cursor.execute('''
-        INSERT INTO items (name, category, image_name)
+        INSERT INTO items (name, category_id, image_name)
         VALUES (?, ?, ?)
-    ''', (name, category, image_name))
+    ''', (name, category_id, image_name))
     db.commit()
 
 
@@ -157,17 +187,22 @@ def get_one_item(items_id: int, db: sqlite3.Connection = Depends(get_db)):
     # item は sqlite3.Row 型のオブジェクトなので、辞書形式に変換して返す
     return dict(item)
 
+
+
 @app.get("/search")
 def search_items(keyword: str, db: sqlite3.Connection = Depends(get_db)):
     cursor = db.cursor()
 
-    # キーワードを含む商品を検索する SQL クエリ
-    cursor.execute('SELECT * FROM items WHERE name LIKE ?', ('%' + keyword + '%',))
+    cursor.execute('''
+        SELECT items.id, items.name, categories.name AS category, items.image_name
+        FROM items
+        JOIN categories ON items.category_id = categories.id
+        WHERE items.name LIKE ?
+    ''', ('%' + keyword + '%',))
+    
     items = cursor.fetchall()
 
     if not items:
         raise HTTPException(status_code=404, detail="No items found matching the keyword")
 
-    # 検索結果を辞書形式に変換して返す
-    result = [{"name": item["name"], "category": item["category"], "image_name": item["image_name"]} for item in items]
-    return {"items": result}
+    return {"items": [dict(item) for item in items]}
