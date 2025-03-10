@@ -118,17 +118,21 @@ class Item(BaseModel):
     name: str
     category: str
     image_name: str
+
 def insert_item(name: str, category: str, image_name: str, db: sqlite3.Connection):
     cursor = db.cursor()
     
     # category_nameからcategory_idを取得
     cursor.execute('SELECT id FROM categories WHERE name = ?', (category,))
-    category_id = cursor.fetchone()
-    
-    if not category_id:
-        raise HTTPException(status_code=400, detail=f"Category '{category}' does not exist.")
-    
-    category_id = category_id["id"]  # id を取り出す
+    category_row = cursor.fetchone()  # ここで取得したのはタプルや辞書形式
+
+    if not category_row:
+        # カテゴリーが存在しない場合は新しく追加
+        cursor.execute('INSERT INTO categories (name) VALUES (?)', (category,))
+        db.commit()
+        category_id = cursor.lastrowid  # 新しく追加されたカテゴリーのIDを取得
+    else:
+        category_id = category_row["id"]  # 辞書形式なら["id"]でアクセス
 
     # items テーブルに挿入
     cursor.execute('''
