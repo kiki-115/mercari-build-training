@@ -161,7 +161,7 @@ def get_items(db: sqlite3.Connection = Depends(get_db)):
 def add_item(
     name: Optional[str] = Form(None),
     category: Optional[str] = Form(None),
-    image: UploadFile = File(...),
+    image: Optional[UploadFile] = File(None),
     db: sqlite3.Connection = Depends(get_db),
 ):
     if not name:
@@ -170,8 +170,9 @@ def add_item(
         raise HTTPException(status_code=400, detail="category is required")
     #if not image:
         #raise HTTPException(status_code=400, detail="image is required")
-
-    image_name = save_image(image)
+    image_name = "noimage.jpg"
+    if (image):
+        image_name = save_image(image)
 
     insert_item(name, category, image_name, db)
     return AddItemResponse(**{"message": f"item received: {name}"})
