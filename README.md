@@ -23,7 +23,7 @@ The following icons indicate pointers for
 
 ## Tasks
 
-- [X] **STEP1** Git ([JA](document/01-git.ja.md)/[EN](document/01-git.en.md))
+- [x] **STEP1** Git ([JA](document/01-git.ja.md)/[EN](document/01-git.en.md))
 - [x] **STEP2** Setup environment ([JA](document/02-local-env.ja.md)
   /[EN](document/02-local-env.en.md))
 - [x] **STEP3** Algorithms and Data Structures([JA](document/03-algorithm-and-data-structure.ja.md)/[EN](document/03-algorithm-and-data-structure.en.md))
