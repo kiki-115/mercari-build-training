@@ -8,7 +8,7 @@ interface Prop {
 type FormDataType = {
   name: string;
   category: string;
-  image: string | File;
+  image?: string | File;
 };
 
 export const Listing = ({ onListingCompleted }: Prop) => {
@@ -28,15 +28,19 @@ export const Listing = ({ onListingCompleted }: Prop) => {
   const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValues({
       ...values,
-      [event.target.name]: event.target.files![0],
+      [event.target.name]: event.target.files ? event.target.files[0] : '', // 画像がない場合は空文字をセット
     });
   };
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    // 画像がない場合は undefined にする（サーバー側で処理される前提）
+    const imageToSend = values.image === '' ? undefined : values.image;
+
     postItem({
       name: values.name,
       category: values.category,
-      image: values.image,
+      image: imageToSend, // image が undefined の場合も送信される
     })
       .catch((error) => {
         console.error('POST error:', error);
@@ -71,7 +75,6 @@ export const Listing = ({ onListingCompleted }: Prop) => {
             name="image"
             id="image"
             onChange={onFileChange}
-            required
           />
           <button type="submit">List this item</button>
         </div>

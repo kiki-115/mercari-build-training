@@ -10,6 +10,9 @@ from pydantic import BaseModel
 from contextlib import asynccontextmanager
 from typing import Optional
 import json
+from PIL import Image
+from io import BytesIO
+
 
 # Define the path to the images & sqlite3 database
 images = pathlib.Path(__file__).parent.resolve() / "images"
@@ -19,11 +22,16 @@ db = pathlib.Path(__file__).parent.resolve() / "db" / "mercari.sqlite3"
 # 画像を保存し、ハッシュ化したファイル名を返す
 def save_image(file: UploadFile) -> str:
     file_content = file.file.read()
+    # Pillowで画像を開く
+    image = Image.open(BytesIO(file_content))
+    # リサイズ処理
+    max_size = (300, 300)
+    image.thumbnail(max_size)
     sha256_hash = hashlib.sha256(file_content).hexdigest()
     image_path = images / f"{sha256_hash}.jpg"
     
-    with open(image_path, "wb") as f:
-        f.write(file_content)
+    # リサイズ後の画像を保存
+    image.save(image_path, "JPEG")
     
     return f"{sha256_hash}.jpg"
 
@@ -69,7 +77,6 @@ async def lifespan(app: FastAPI):
     setup_database()
     yield
 
-
 app = FastAPI(lifespan=lifespan)
 
 logger = logging.getLogger("uvicorn")
@@ -108,8 +115,9 @@ async def get_image(image_name):
         raise HTTPException(status_code=400, detail="Image path does not end with .jpg")
 
     if not image.exists():
-        logger.debug(f"Image not found: {image}")
-        image = images / "default.jpg"
+        raise HTTPException(status_code=404, detail="Image not found")
+        # logger.debug(f"Image not found: {image}")
+        # image = images / "noimage.jpg"
 
     return FileResponse(image)
 
@@ -141,10 +149,20 @@ def insert_item(name: str, category: str, image_name: str, db: sqlite3.Connectio
     ''', (name, category_id, image_name))
     db.commit()
 
-
 def get_all_items(db: sqlite3.Connection):
     cursor = db.cursor()
-    cursor.execute('SELECT * FROM items')
+    # itemsテーブルとcategoriesテーブルをJOINして、category_idをcategory名に変換するクエリ
+    cursor.execute('''
+        SELECT
+            items.id,
+            items.name,
+            categories.name AS category,  
+            items.image_name
+        FROM
+            items
+        JOIN
+            categories ON items.category_id = categories.id
+    ''')
     rows = cursor.fetchall()
     return rows
 
@@ -152,7 +170,8 @@ def get_all_items(db: sqlite3.Connection):
 def get_items(db: sqlite3.Connection = Depends(get_db)):
     items = get_all_items(db)
     if not items:
-        raise HTTPException(status_code=404, detail="No items found")
+        print(f"db does not exist.")
+    #     raise HTTPException(status_code=404, detail="No items found")
     return {"items": [dict(item) for item in items]}  # データベースの行を辞書形式に変換して返す
 
 
@@ -211,3 +230,40 @@ def search_items(keyword: str, db: sqlite3.Connection = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No items found matching the keyword")
 
     return {"items": [dict(item) for item in items]}
+
+def clear_data(db: sqlite3.Connection):
+    cursor = db.cursor()
+    
+    # items テーブルのデータ削除
+    cursor.execute('DELETE FROM items')
+    
+    # categories テーブルのデータ削除
+    cursor.execute('DELETE FROM categories')
+    
+    # コミットして変更を反映
+    db.commit()
+
+def delete_db():
+    """mercari.sqlite3 データベースファイルを削除する関数"""
+    try:
+        if db.exists():
+            os.remove(db)  # ファイルを削除
+            print(f"db has been deleted.")
+        else:
+            print(f"db does not exist.")
+    except Exception as e:
+        print(f"Failed to delete db: {e}")
+
+@app.delete("/clear_data")
+def clear_data_endpoint():
+    try:
+        # データ削除
+        delete_db()
+        
+        # データベースとテーブルの再作成
+        setup_database()
+
+        return {"message": "All data has been cleared."}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to clear data: {str(e)}")

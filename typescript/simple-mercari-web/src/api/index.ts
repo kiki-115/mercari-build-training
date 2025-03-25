@@ -26,14 +26,19 @@ export const fetchItems = async (): Promise<ItemListResponse> => {
 export interface CreateItemInput {
   name: string;
   category: string;
-  image: string | File;
+  image?: string | File;
 }
 
 export const postItem = async (input: CreateItemInput): Promise<Response> => {
   const data = new FormData();
   data.append('name', input.name);
   data.append('category', input.category);
-  data.append('image', input.image);
+  //data.append('image', input.image);
+  // imageがある場合のみFormDataに追加
+  if (input.image) {
+    data.append('image', input.image);
+  }
+
   const response = await fetch(`${SERVER_URL}/items`, {
     method: 'POST',
     mode: 'cors',
