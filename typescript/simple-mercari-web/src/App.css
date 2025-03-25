@@ -1,49 +1,117 @@
+/* すべての要素の余白をリセット */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* body 全体を背景色 #f0efe6 に */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* ビューポート全体をカバー */
+  background-color: #f0efe6; /* 全体背景色 */
+  display: flex;
+  flex-direction: column; /* 縦方向のフレックスボックス */
+}
+
+/* App コンテナ */
 .App {
+  width: 100%;
+  min-height: 100vh; /* ビューポートの高さを最低限に設定 */
   text-align: center;
+  display: flex;
+  flex-direction: column; /* 縦方向に並べる */
+  justify-content: flex-start; /* 上寄せ */
+  background-color: #f0efe6; /* Appコンテナの背景色 */
 }
 
+/* タイトルやフォームなどのヘッダ部分 */
 .Title {
-  background-color: #222427;
-  min-height: 8vh;
+  background-color: #5f7e7b; /* 差し色として落ち着いた緑を使用 */
+  min-height: 8vh; /* ヘッダーの高さ */
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: left;
+  align-items: center;      /* 縦方向の中央寄せ */
+  justify-content: center;  /* 横方向の中央寄せ */
   font-size: calc(10px + 1vmin);
   color: white;
+  width: 100%;              /* 横幅100%にして中央寄せ */
+  padding: 0 2rem;
 }
 
+/* リスト投稿フォーム部分 */
 .Listing {
-  background-color: #222427;
-  min-height: 8vh;
+  background-color: #c3c1af; /* 差し色としてベージュを使用 */
+  min-height: 8vh; /* フォーム部分の高さ */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: left;
+  align-items: center;        /* 横方向の中央寄せ */
+  justify-content: center;    /* 縦方向の中央寄せ */
   font-size: calc(10px + 1vmin);
-  color: white;
+  color: #405a5c; /* 落ち着いた緑色をテキストカラーに */
+  padding: 1rem;
+  width: 100%;                  /* 横幅100%にして中央寄せ */
 }
 
+/* 個々のアイテム枠 */
 .ItemList {
-  background-color: #222427;
-  min-height: 8vh;
+  background-color: #c3c1af; /* 同じくベージュを使用 */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: left;
+  align-items: center;        /* 横方向の中央寄せ */
+  justify-content: center;    /* 縦方向の中央寄せ */
   font-size: calc(10px + 1vmin);
+  color: #405a5c; /* テキストは落ち着いた緑色 */
+  padding: 1rem;
+  width: 100%;                  /* 横幅100%にして中央寄せ */
+}
+
+/* グリッドコンテナ */
+.ItemsGrid {
+  width: 100%;                  /* 横幅100% */
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  justify-items: center;       /* アイテムを中央寄せ */
+}
+
+/* 画面幅が 624px 以上になったら 3 列にする */
+@media screen and (min-width: 624px) {
+  .ItemsGrid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+/* アイテムカードのスタイル（例） */
+.Item {
+  background-color: #ffffff; /* アイテムカードに白背景 */
+  border: 1px solid #405a5c; /* 緑の枠線 */
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  width: 80%; /* アイテムカードの幅を調整 */
+  max-width: 300px; /* 最大幅を設定 */
+}
+
+.Item:hover {
+  transform: translateY(-10px); /* ホバー時に少し浮き上がるエフェクト */
+}
+
+/* ボタンなどのインタラクティブ要素 */
+button {
+  background-color: #5f7e7b; /* ボタンに落ち着いた緑を使用 */
   color: white;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+button:hover {
+  background-color: #405a5c; /* ホバー時にさらに濃い緑に */
 }
