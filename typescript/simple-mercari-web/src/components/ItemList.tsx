@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Item, fetchItems } from '~/api';
 
-const PLACEHOLDER_IMAGE = import.meta.env.VITE_FRONTEND_URL + '/logo192.png';
+// const PLACEHOLDER_IMAGE = import.meta.env.VITE_FRONTEND_URL + '/logo192.png';
 
 interface Prop {
   reload: boolean;
@@ -29,20 +29,36 @@ export const ItemList = ({ reload, onLoadCompleted }: Prop) => {
   }, [reload, onLoadCompleted]);
 
   return (
-    <div>
-      {items?.map((item) => {
-        return (
-          <div key={item.id} className="ItemList">
-            {/* TODO: Task 2: Show item images */}
-            <img src={PLACEHOLDER_IMAGE} />
-            <p>
-              <span>Name: {item.name}</span>
-              <br />
-              <span>Category: {item.category}</span>
-            </p>
-          </div>
-        );
-      })}
-    </div>
-  );
+  //   <div>
+  //     {items.map((item) => {
+  //       return (
+  //         <div key={item.id} className="ItemList">
+  //           {/* TODO: Task 2: Show item images */}
+  //           {/* <img src={PLACEHOLDER_IMAGE} /> */}
+  //           <img src={`http://localhost:9000/image/${item.image_name}`} alt={item.name} />
+
+  //           <p>
+  //             <span>Name: {item.name}</span>
+  //             <br />
+  //             <span>Category: {item.category}</span>
+  //           </p>
+  //         </div>
+  //       );
+  //     })}
+  //   </div>
+  // );
+    <div className="ItemsGrid">
+      {items?.map((item) => (
+        <div key={item.id} className="ItemList">
+          <img src={`http://localhost:9000/image/${item.image_name}`} alt={item.name} />
+            
+          <p>
+            <span>Name: {item.name}</span>
+            <br />
+            <span>Category: {item.category}</span>
+          </p>
+        </div>
+      ))}
+      </div>
+    );
 };
