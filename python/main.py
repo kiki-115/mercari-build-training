@@ -197,19 +197,46 @@ def add_item(
     return AddItemResponse(**{"message": f"item received: {name}"})
 
     
+# @app.get("/items/{items_id}")
+# def get_one_item(items_id: int, db: sqlite3.Connection = Depends(get_db)):
+#     cursor = db.cursor()
+    
+#     # items_id を使って、商品を取得するSQLクエリを実行
+#     cursor.execute('SELECT * FROM items WHERE id = ?', (items_id,))
+#     item = cursor.fetchone()  # 1件の結果を取得
+
+#     if not item:
+#         raise HTTPException(status_code=404, detail="Item not found")
+
+#     # item は sqlite3.Row 型のオブジェクトなので、辞書形式に変換して返す
+#     return dict(item)
 @app.get("/items/{items_id}")
 def get_one_item(items_id: int, db: sqlite3.Connection = Depends(get_db)):
     cursor = db.cursor()
     
     # items_id を使って、商品を取得するSQLクエリを実行
-    cursor.execute('SELECT * FROM items WHERE id = ?', (items_id,))
+    cursor.execute('''
+        SELECT
+            items.id,
+            items.name,
+            categories.name AS category,
+            items.image_name
+        FROM
+            items
+        JOIN
+            categories ON items.category_id = categories.id
+        WHERE
+            items.id = ?
+    ''', (items_id,))
+    
     item = cursor.fetchone()  # 1件の結果を取得
 
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    # item は sqlite3.Row 型のオブジェクトなので、辞書形式に変換して返す
-    return dict(item)
+    # 結果を辞書形式に変換して返す
+    return {"item": [{"id": item[0],"name": item[1],"category": item[2],"image_name": item[3]}]}
+
 
 
 
