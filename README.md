@@ -4,15 +4,15 @@ This is @kiki-115's build training repository.
 
 私が以下の内容を読んで理解したものをまとめたメモはこちら
 
-STEP4 : https://www.notion.so/Web-API-STEP4-1c60bc2dfaa28058afa8dddf55ea6080?pvs=4
+STEP4 : https://successful-pony-a84.notion.site/Web-API-STEP4-1c60bc2dfaa28058afa8dddf55ea6080
 
-STEP5 : https://www.notion.so/STEP5-1c60bc2dfaa280d18c57e5e72550a08c?pvs=4
+STEP5 : https://successful-pony-a84.notion.site/STEP5-1c60bc2dfaa280d18c57e5e72550a08c
 
-STEP6 : https://www.notion.so/STEP6-1c60bc2dfaa280f89dadc9a8f55f5dc4?pvs=4
+STEP6 : https://successful-pony-a84.notion.site/STEP6-1c60bc2dfaa280f89dadc9a8f55f5dc4
 
-STEP7 : https://www.notion.so/Docker-STEP7-1c60bc2dfaa280a0872affecac17206f?pvs=4
+STEP7 : https://successful-pony-a84.notion.site/Docker-STEP7-1c60bc2dfaa280a0872affecac17206f
 
-STEP8 : https://www.notion.so/CI-STEP8-1c70bc2dfaa280bfba28da5a9216166c?pvs=4
+STEP8 : https://successful-pony-a84.notion.site/CI-STEP8-1c70bc2dfaa280bfba28da5a9216166c
 
 Build trainingの前半では個人で課題に取り組んでもらい、Web開発の基礎知識をつけていただきます。
 ドキュメントには詳細なやり方は記載しません。自身で検索したり、リファレンスを確認したり、チームメイトと協力して各課題をクリアしましょう。
